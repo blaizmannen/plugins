@@ -4,6 +4,7 @@ metadata:
   labels:
     app: echo-env
   name: echo-env
+  namespace: signadot
 spec:
   replicas: 1
   selector:
@@ -14,8 +15,7 @@ spec:
     metadata:
       labels:
         app: echo-env
-      annotations:
-        sidecar.signadot.com/inject: "http"
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
       - image: signadot/echo-env:latest
@@ -31,6 +31,7 @@ metadata:
   labels:
     app: echo-env
   name: echo-env
+  namespace: signadot
 spec:
   ports:
     - name: http-web

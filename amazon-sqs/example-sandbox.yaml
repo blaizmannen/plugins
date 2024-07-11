@@ -1,21 +1,21 @@
 name: test-amazon-sqs
 spec:
-  cluster: "@{cluster}"
+  cluster: ascendago-private-staging
   resources:
   - name: mysqs
     plugin: amazon-sqs
     params:
-      region: us-west-2
-      tags: "MyTag=value,Tag2=value"
+      region: ap-southeast-1
+      tags: "Tag1=Johntest,Tag2=Signadot"
 
   defaultRouteGroup:
     endpoints:
     - name: echoenv
-      target: "http://echo-env.@{namespace}.svc:8080"
+      target: "http://echo-env.signadot.svc:8080"
 
   forks:
   - forkOf:
-      namespace: "@{namespace}"
+      namespace: signadot
       name: echo-env
       kind: Deployment
     customizations:

@@ -1,0 +1,30 @@
+name: test-amazon-sqs
+spec:
+  cluster: ascendago-private-staging
+  resources:
+  - name: alb-listener-rule
+    plugin: alb-listener-rule
+    params:
+      app: e2e-mc
+      region: ap-southeast-1
+      environment: staging
+      visibility: private
+      family: e2e
+
+  defaultRouteGroup:
+    endpoints:
+    - name: echoenv
+      target: "http://echo-env.signadot.svc:8080"
+
+  forks:
+  - forkOf:
+      namespace: signadot
+      name: echo-env
+      kind: Deployment
+    # customizations:
+    #   env:
+    #   - name: SQS_URL
+    #     valueFrom:
+    #       resource:
+    #         name: mysqs
+    #         outputKey: provision.queue-url

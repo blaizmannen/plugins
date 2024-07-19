@@ -1,0 +1,64 @@
+name: alb-listener-rule
+spec:
+  description: |
+    This plugin is capable of finding the specific private ALB for an application, and add
+    a listener rule to point to a custom target group which will then ultimately point to a service
+    in k8s that will point to our sandbox environment
+  runner:
+    image: amazon/aws-cli
+    namespace: signadot
+    podTemplateOverlay: "@{embed: ./plugin/pod-template.yaml}"
+
+  create:
+  - name: provision
+    inputs:
+    - name: region
+      valueFromSandbox: true
+      as:
+        env: AWS_REGION
+    - name: app
+      valueFromSandbox: true
+      as:
+        env: APP
+    - name: visibility
+      valueFromSandbox: true
+      as:
+        env: VISIBILITY
+    - name: environment
+      valueFromSandbox: true
+      as:
+        env: ENVIRONMENT
+    - name: family
+      valueFromSandbox: true
+      as:
+        env: FAMILY
+
+    outputs:
+    - name: queue-name
+      valueFromPath: /tmp/queue-name
+    - name: queue-url
+      valueFromPath: /tmp/queue-url
+
+    script: "@{embed: ./plugin/provision.sh}"
+
+  delete:
+  - name: deprovision
+    inputs:
+    - name: region
+      valueFromSandbox: true
+      as:
+        env: AWS_REGION
+    - name: queue-name
+      valueFromStep:
+        name: provision
+        output: queue-name
+      as:
+        env: QUEUE_NAME
+    - name: queue-url
+      valueFromStep:
+        name: provision
+        output: queue-url
+      as:
+        env: QUEUE_URL
+
+    script: "@{embed: ./plugin/deprovision.sh}"

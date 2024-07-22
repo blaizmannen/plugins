@@ -1,8 +1,9 @@
-name: test-amazon-sqs
+# name needs to be dynamic each time
+name: alb-rule-6969
 spec:
   cluster: ascendago-private-staging
   resources:
-  - name: alb-listener-rule
+  - name: albListenerRule
     plugin: alb-listener-rule
     params:
       app: e2e-mc
@@ -13,18 +14,15 @@ spec:
 
   defaultRouteGroup:
     endpoints:
-    - name: echoenv
-      target: "http://echo-env.signadot.svc:8080"
+    - name: e2e-mc
+      target: "http://e2e-mc.e2e-mc.svc:80"
 
   forks:
-  - forkOf:
-      namespace: signadot
-      name: echo-env
-      kind: Deployment
-    # customizations:
-    #   env:
-    #   - name: SQS_URL
-    #     valueFrom:
-    #       resource:
-    #         name: mysqs
-    #         outputKey: provision.queue-url
+    - forkOf:
+        kind: Deployment
+        namespace: e2e-mc
+        name: e2e-mc-ascendago-staging
+      customizations:
+        images:
+          - image: 534657920328.dkr.ecr.ap-southeast-1.amazonaws.com/e2e-mc:45c7ca5c2b679f3775ed1bf595123e7e833ce376
+            container: main

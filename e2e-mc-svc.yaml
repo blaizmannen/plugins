@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mc
+  name: e2e-mc-sandbox-elegiggle
+  namespace: e2e-mc
+spec:
+  ports:
+  - name: http
+    nodePort: 30605
+    port: 80
+    protocol: TCP
+    targetPort: 2311
+  selector:
+    signadot.com/sandbox-id: 0uqupphwsbjps
+    signadot.com/sandbox-routing-key: 0uqupphwsbjps
+  type: NodePort
+

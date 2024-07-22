@@ -1,4 +1,4 @@
-SANDBOX_ID="asd123"
+SANDBOX_ID="asdf123"
 # We have to extract this from devops repo or something
 ACTUAL_NODEPORT=30004
 START_NODEPORT_RANGE=$(( ACTUAL_NODEPORT + 600 ))
@@ -67,7 +67,9 @@ NEXT_PRIORITY=$((MAX_PRIORITY + 1))
 echo "The next available priority is: $NEXT_PRIORITY"
 
 # Create listener rule to point to the created target group when sandbox header values exist
-CREATE_RULE=$(aws elbv2 create-rule --listener-arn $LISTENER_ARN --conditions "Field=http-header,HttpHeaderConfig={HttpHeaderName=uberctx-sd-sandbox,Values=[$SANDBOX_ID]}" --actions Type=forward,TargetGroupArn=$TARGET_GROUP_ARN --priority $NEXT_PRIORITY)
+RULE_ARN=$(aws elbv2 create-rule --listener-arn $LISTENER_ARN --conditions "Field=http-header,HttpHeaderConfig={HttpHeaderName=uberctx-sd-sandbox,Values=[$SANDBOX_ID]}" --actions Type=forward,TargetGroupArn=$TARGET_GROUP_ARN --priority $NEXT_PRIORITY | jq -r '.Rules[0].RuleArn')
 
+echo $RULE_ARN
+echo $TARGET_GROUP_ARN
 
 # Need to output nodePort for the current targetGroup. This will be used for the k8s service to be deployed next in the pipeline

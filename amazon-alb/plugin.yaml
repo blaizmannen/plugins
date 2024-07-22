@@ -34,10 +34,10 @@ spec:
         env: FAMILY
 
     outputs:
-    - name: queue-name
-      valueFromPath: /tmp/queue-name
-    - name: queue-url
-      valueFromPath: /tmp/queue-url
+    - name: rule-arn
+      valueFromPath: /tmp/rule-arn
+    - name: target-group-arn
+      valueFromPath: /tmp/target-group-arn
 
     script: "@{embed: ./plugin/provision.sh}"
 
@@ -48,17 +48,17 @@ spec:
       valueFromSandbox: true
       as:
         env: AWS_REGION
-    - name: queue-name
+    - name: rule-arn
       valueFromStep:
         name: provision
-        output: queue-name
+        output: rule-arn
       as:
-        env: QUEUE_NAME
-    - name: queue-url
+        env: RULE_ARN
+    - name: target-group-arn
       valueFromStep:
         name: provision
-        output: queue-url
+        output: target-group-arn
       as:
-        env: QUEUE_URL
+        env: TARGET_GROUP_ARN
 
     script: "@{embed: ./plugin/deprovision.sh}"

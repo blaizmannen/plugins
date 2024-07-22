@@ -2,6 +2,10 @@
 # exit when any command fails
 set -e
 
+# Install jq
+curl  -L https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -o /bin/jq
+chmod +x /bin/jq
+
 if [ "$VISIBILITY" = "private" ]; then
     SCHEME="internal"
 else
@@ -76,7 +80,13 @@ NEXT_PRIORITY=$((MAX_PRIORITY + 1))
 echo "The next available priority is: $NEXT_PRIORITY"
 
 # Create listener rule to point to the created target group when sandbox header values exist
-CREATE_RULE=$(aws elbv2 create-rule --listener-arn $LISTENER_ARN --conditions "Field=http-header,HttpHeaderConfig={HttpHeaderName=uberctx-sd-sandbox,Values=[$SANDBOX_ID]}" --actions Type=forward,TargetGroupArn=$TARGET_GROUP_ARN --priority $NEXT_PRIORITY)
+RULE_ARN=$(aws elbv2 create-rule --listener-arn $LISTENER_ARN --conditions "Field=http-header,HttpHeaderConfig={HttpHeaderName=uberctx-sd-sandbox,Values=[$SANDBOX_ID]}" --actions Type=forward,TargetGroupArn=$TARGET_GROUP_ARN --priority $NEXT_PRIORITY | jq -r '.Rules[0].RuleArn')
+echo "Rule created: $RULE_ARN"
 
+# Open security group for ALB, private worker and application
+
+# Populate output
+echo -n "${RULE_ARN}" > /tmp/rule-arn
+echo -n "${TARGET_GROUP_ARN}" > /tmp/target-group-arn
 
 # Need to output nodePort for the current targetGroup. This will be used for the k8s service to be deployed next in the pipeline
